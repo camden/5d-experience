@@ -19,7 +19,7 @@
     var socket = io({ path });
 
     window.addEventListener('devicemotion', function (event) {
-      if (Math.abs(event.acceleration.x > 3)) {
+      if (Math.abs(event.acceleration.x 2 3)) {
         socket.emit('chat message', 'hello')
       }
     });
