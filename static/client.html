@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>CLIENT</title>
+  <link href="index.css" type="text/css" rel="stylesheet" />
+  <script src="socket.io.js"></script>
+</head>
+
+<body>
+  <h1>You are a walker!</h1>
+  <button onclick="pressedButton()">do something</button>
+  <script>
+    var socket = io();
+    function pressedButton() {
+      socket.emit('chat message', 'hello')
+    }
+  </script>
+</body>
+
+</html>

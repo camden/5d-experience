@@ -8,13 +8,23 @@ const server = http.Server(app);
 app.use(express.static('static'));
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + 'static/index.html');
+  res.sendFile(__dirname + '/static/choice.html');
+});
+
+app.get('/noise', function(req, res) {
+  res.sendFile(__dirname + '/static/noise.html');
+});
+
+app.get('/walker', function(req, res) {
+  res.sendFile(__dirname + '/static/client.html');
 });
 
 const io = SocketIO(server);
 
 io.on('connection', function(socket) {
-  console.log('a user connected');
+  socket.on('chat message', function(msg) {
+    io.emit('chat message', msg);
+  });
 });
 
 server.listen(3000, function() {

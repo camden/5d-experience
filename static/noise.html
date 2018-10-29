@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Socket.IO chat</title>
+  <link href="index.css" type="text/css" rel="stylesheet" />
+  <script src="socket.io.js"></script>
+</head>
+
+<body>
+  <h1>Does this work?</h1>
+  <div id="messages"></div>
+  <script>
+    var socket = io();
+
+    socket.on('chat message', function (msg) {
+      console.log('got message: ', msg)
+      const element = document.getElementById('messages');
+      element.innerHTML += ' ' + msg;
+    });
+
+  </script>
+</body>
+
+</html>
