@@ -4,6 +4,7 @@
 <head>
   <title>Socket.IO chat</title>
   <link href="index.css" type="text/css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.3.11/Tone.min.js"></script>
   <script src="socket.io.js"></script>
 </head>
 
@@ -11,12 +12,19 @@
   <h1>Does this work?</h1>
   <div id="messages"></div>
   <script>
-    var socket = io({ path: '/5d-experience/socket.io' });
+    const enablePrefix = true;
+    const path = `${enablePrefix ? '/5d-experience' : ''}/socket.io`
+    var socket = io({ path });
+
+    //create a synth and connect it to the master output (your speakers)
+    var synth = new Tone.Synth().toMaster();
 
     socket.on('chat message', function (msg) {
       console.log('got message: ', msg)
       const element = document.getElementById('messages');
       element.innerHTML += ' ' + msg;
+      //play a middle 'C' for the duration of an 8th note
+      synth.triggerAttackRelease("C4", "8n");
     });
 
   </script>
