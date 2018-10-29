@@ -19,7 +19,7 @@ app.get('/walker', function(req, res) {
   res.sendFile(__dirname + '/static/client.html');
 });
 
-const io = SocketIO.listen(server);
+const io = SocketIO.listen(server, { resource: '/5d-experience/socket.io' });
 
 io.on('connection', function(socket) {
   socket.on('chat message', function(msg) {
