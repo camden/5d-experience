@@ -9,22 +9,50 @@
 </head>
 
 <body>
-  <h1>Does this work?</h1>
   <div id="messages"></div>
+  <button onclick="mute()">Toggle Mute</button>
+  <button onclick="muteBG()">Toggle Mute Background</button>
+
   <script>
-    const enablePrefix = true;
+    const enablePrefix = false;
     const path = `${enablePrefix ? '/5d-experience' : ''}/socket.io`
     var socket = io({ path });
 
     //create a synth and connect it to the master output (your speakers)
-    var synth = new Tone.Synth().toMaster();
+    const reverb = new Tone.Freeverb().toMaster();
+    reverb.dampening.value = 2000;
 
-    socket.on('chat message', function (msg) {
-      console.log('got message: ', msg)
+    const synth = new Tone.PluckSynth().connect(reverb);
+
+    //initialize the noise and start
+    var noise = new Tone.Noise("pink").start();
+
+    //make an autofilter to shape the noise
+    var autoFilter = new Tone.AutoFilter({
+      "frequency": "8m",
+      "min": 1500,
+      "max": 10000
+    }).connect(Tone.Master);
+
+    //connect the noise
+    noise.connect(autoFilter);
+    //start the autofilter LFO
+    autoFilter.start()
+
+    function mute() {
+      Tone.Master.mute = !Tone.Master.mute;
+    }
+
+    function muteBG() {
+      noise.mute = !noise.mute;
+    }
+
+    socket.on('step', function (msg) {
+      console.log('got step: ', msg)
       const element = document.getElementById('messages');
       element.innerHTML += ' ' + msg;
       //play a middle 'C' for the duration of an 8th note
-      synth.triggerAttackRelease("C4", "8n");
+      synth.triggerAttackRelease(msg, "4n");
     });
 
   </script>

@@ -22,8 +22,8 @@ app.get('/walker', function(req, res) {
 const io = SocketIO.listen(server, { resource: '/5d-experience/socket.io' });
 
 io.on('connection', function(socket) {
-  socket.on('chat message', function(msg) {
-    io.emit('chat message', msg);
+  socket.on('step', function(msg) {
+    io.emit('step', msg);
   });
 });
 
