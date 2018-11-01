@@ -13,15 +13,20 @@
 
 <body>
   <h1>You are a walker!</h1>
-  <div id="rotation"></div>
-  <button onclick="sendNoise()">do something</button>
-
-  <input type="range" name="sound" min="0" max="10" value="5" step="1" />
+  <button onclick="pickRandomNoise()">Pick a random noise</button>
 
   <script>
     const enablePrefix = true;
     const path = `${enablePrefix ? '/5d-experience' : ''}/socket.io`
     var socket = io({ path });
+
+    let noiseIndex = 0;
+
+    pickRandomNoise();
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
     window.addEventListener('devicemotion', function (event) {
       if (Math.abs(event.acceleration.y > 5)) {
@@ -30,7 +35,11 @@
     });
 
     function getSoundValue() {
-      return document.querySelector('input[name="sound"]').value;
+      return noiseIndex;
+    }
+
+    function pickRandomNoise() {
+      noiseIndex = getRandomInt(0, 10)
     }
 
     function _sendNoise() {

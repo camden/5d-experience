@@ -3,8 +3,10 @@
 
 <head>
   <title>Socket.IO chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="index.css" type="text/css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.3.11/Tone.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.js"></script>
   <script src="socket.io.js"></script>
 </head>
 
@@ -78,19 +80,19 @@
     }).toMaster().connect(chorus).connect(reverb).connect(vibrato);
 
     //initialize the noise and start
-    var noise = new Tone.Noise("pink").start();
-    noise.volume.value = -15;
-    noise.mute = true;
+    var noiseSound = new Tone.Noise("pink").start();
+    noiseSound.volume.value = -15;
+    noiseSound.mute = true;
 
     //make an autofilter to shape the noise
     var autoFilter = new Tone.AutoFilter({
-      "frequency": "8m",
+      "frequency": "4m",
       "min": 1500,
-      "max": 10000
+      "max": 8000
     }).connect(Tone.Master);
 
     //connect the noise
-    noise.connect(autoFilter);
+    noiseSound.connect(autoFilter);
     //start the autofilter LFO
     autoFilter.start()
 
@@ -99,29 +101,31 @@
     }
 
     function muteBG() {
-      noise.mute = !noise.mute;
+      noiseSound.mute = !noiseSound.mute;
     }
 
     socket.on('step', function (msg) {
-      console.log('got step: ', msg)
-      const element = document.getElementById('messages');
-      element.innerHTML += ' ' + msg;
       playSound(msg);
     });
 
     // D, F, G, G#, A, C, D (Dm Pentatonic Blues)
     const sounds = [
-      () => bassy.triggerAttackRelease('D1', "16n"),
-      () => bubbly.triggerAttackRelease('F4', "8n"),
-      () => airy.triggerAttackRelease('G1', "16n"),
-      () => bubbly.triggerAttackRelease('G#3', "8n"),
-      () => bassy.triggerAttackRelease('A2', "16n"),
-      () => bubbly.triggerAttackRelease('C4', "32n"),
-      () => bassy.triggerAttackRelease('D1', "16n"),
       () => airy.triggerAttackRelease('D4', "32n"),
       () => airy.triggerAttackRelease('G#6', "32n"),
-      () => bassy.triggerAttackRelease('F2', "32n"),
+      () => airy.triggerAttackRelease('G1', "16n"),
+      () => angels.triggerAttackRelease('A2', "4n"),
+      () => angels.triggerAttackRelease('C3', "4n"),
       () => angels.triggerAttackRelease('C4', "4n"),
+      () => angels.triggerAttackRelease('G#4', "4n"),
+      () => angels.triggerAttackRelease('G2', "4n"),
+      () => bassy.triggerAttackRelease('A2', "16n"),
+      () => bassy.triggerAttackRelease('A3', "16n"),
+      () => bassy.triggerAttackRelease('D1', "16n"),
+      () => bassy.triggerAttackRelease('D1', "16n"),
+      () => bassy.triggerAttackRelease('F2', "32n"),
+      () => bubbly.triggerAttackRelease('C4', "32n"),
+      () => bubbly.triggerAttackRelease('F4', "8n"),
+      () => bubbly.triggerAttackRelease('G#2', "8n"),
     ];
 
     function playSound(index) {
@@ -130,8 +134,46 @@
       } else {
         sounds[index]();
       }
+      createRandomBurst();
     }
 
+    const circles = [];
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function createRandomBurst() {
+      circles.push([getRandomInt(0, windowWidth), getRandomInt(0, windowHeight), 0])
+    }
+
+    const MAX_CIRCLE_SIZE = 150;
+    const GROWTH_RATE = 2;
+    function draw() {
+      background(0, 0, 0);
+
+      noStroke();
+
+      for (let i = 0; i < circles.length; i++) {
+        if (!circles[i]) {
+          continue;
+        }
+
+        const [x, y, size] = circles[i];
+        const opacity = 1 - (1 / (MAX_CIRCLE_SIZE / size));
+        fill(`rgba(100%,100%,100%,${opacity})`);
+        ellipse(x, y, size, size);
+        if (size + GROWTH_RATE > MAX_CIRCLE_SIZE) {
+          delete circles[i];
+        } else {
+          circles[i] = [x, y, size + GROWTH_RATE];
+        }
+      }
+    }
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+    }
   </script>
 </body>
 
