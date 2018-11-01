@@ -9,16 +9,32 @@
   <script src="https://cdn.jsdelivr.net/npm/gyronorm@2.0.6/lib/gyronorm.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@hughsk/fulltilt@0.7.1/dist/fulltilt.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.6.0/NoSleep.js"></script>
 </head>
 
-<body>
+<body ontouchstart="">
   <h1>You are a walker!</h1>
   <button onclick="pickRandomNoise()">Pick a random noise</button>
+  <button onclick="toggleSensitive()">Toggle high sensitivity</button>
 
   <script>
     const production = true;
     const path = `${production ? '/5d-experience' : ''}/socket.io`
     var socket = io({ path });
+
+    // Cache your nosleep object to the window
+    window.nosleep = new NoSleep();
+
+    // No sleep enabling function
+    window.enableNoSleep = function () {
+      window.noSleep.enable();
+      document.removeEventListener('click', window.enableNoSleep);
+      document.removeEventListener('touchend', window.enableNoSleep);
+    }
+
+    // Add click and touchend events
+    document.addEventListener('click', window.enableNoSleep, false);
+    document.addEventListener('touchend', window.enableNoSleep, false);
 
     let noiseIndex = 0;
 
@@ -28,8 +44,20 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    let sensitive = false;
+
+    function toggleSensitive() {
+      sensitive = !sensitive;
+      if (sensitive) {
+        alert('High sensitivity enabled')
+      } else {
+        alert('Normal sensitivity enabled')
+      }
+    }
+
     window.addEventListener('devicemotion', function (event) {
-      if (Math.abs(event.acceleration.y > 5)) {
+      const threshold = sensitive ? 3 : 5;
+      if (Math.abs(event.acceleration.y > threshold)) {
         sendNoise();
       }
     });
